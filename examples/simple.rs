@@ -7,7 +7,7 @@ use tracing_timeline::profiler::{Profiler, ProfilerScope};
 fn main() {
     let profiles_builder = Profiler::new();
 
-    let mut profiler = profiles_builder.profile("main");
+    let mut profiler = profiles_builder.thread("main");
 
     query_files(&mut profiler);
 

@@ -6,7 +6,7 @@ use tracing_timeline::profiler::{Profiler, ProfilerScope, Thread};
 
 fn main() {
     let profiles_builder = Profiler::new();
-    let mut profiler = profiles_builder.profile("main");
+    let mut profiler = profiles_builder.thread("main");
 
     query_files(&mut profiler);
 
@@ -29,7 +29,7 @@ fn build_projects(p: &mut impl ProfilerScope, profiles_builder: &Profiler) {
     let join_handles = [3, 4, 5]
         .iter()
         .map(|&i| {
-            let mut p: Thread = profiles_builder.profile(format!("build_project_{}", i));
+            let mut p: Thread = profiles_builder.thread(format!("build_project_{}", i));
             std::thread::spawn(move || {
                 build_project(&mut p, i);
                 p.complete();

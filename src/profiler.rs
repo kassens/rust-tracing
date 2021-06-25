@@ -20,7 +20,7 @@ impl Profiler {
             threads: Default::default(),
         }
     }
-    pub fn profile(&self, name: impl Into<String>) -> Thread {
+    pub fn thread(&self, name: impl Into<String>) -> Thread {
         Thread::new(self, name.into())
     }
     pub fn complete(self) -> File {
