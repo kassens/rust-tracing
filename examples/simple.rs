@@ -2,44 +2,44 @@ use std::fs;
 use std::time::{Duration, Instant};
 
 use tracing_timeline::frame;
-use tracing_timeline::profiler::{Profiler, ProfilerScope};
+use tracing_timeline::profiler::{Profiler, Span};
 
 fn main() {
     let profiles_builder = Profiler::new();
+    let mut thread = profiles_builder.thread("main");
+    let mut s = thread.span(frame!("main"));
 
-    let mut profiler = profiles_builder.thread("main");
+    query_files(&mut s);
 
-    query_files(&mut profiler);
+    build_projects(&mut s);
 
-    build_projects(&mut profiler);
-
-    write_result(&mut profiler);
+    write_result(&mut s);
 
     fs::write(
         "profile.json",
-        serde_json::to_string_pretty(&profiler.complete()).unwrap(),
+        serde_json::to_string_pretty(&profiles_builder.complete()).unwrap(),
     )
     .unwrap();
 }
 
-fn build_projects(p: &mut impl ProfilerScope) {
-    let mut s = p.span(frame!("build_projects"));
+fn build_projects(span: &mut Span<'_>) {
+    let mut s = span.span(frame!("build_projects"));
     build_project(&mut s, 1);
     build_project(&mut s, 2);
 }
 
-fn build_project(p: &mut impl ProfilerScope, secs: u32) {
-    let mut s = p.span(frame!("build_project"));
+fn build_project(span: &mut Span<'_>, secs: u32) {
+    let mut s = span.span(frame!("build_project"));
     fib(&mut s, secs);
 }
 
-fn query_files(p: &mut impl ProfilerScope) {
-    let _s = p.span(frame!("query_files"));
+fn query_files(span: &mut Span<'_>) {
+    let _s = span.span(frame!("query_files"));
     spin(Duration::from_millis(100));
 }
 
-fn write_result(p: &mut impl ProfilerScope) {
-    let _s = p.span(frame!("write_result"));
+fn write_result(span: &mut Span<'_>) {
+    let _s = span.span(frame!("write_result"));
     spin(Duration::from_millis(300));
 }
 
@@ -49,7 +49,7 @@ fn spin(duration: Duration) {
     while t.elapsed() < duration {}
 }
 
-fn fib(parent: &mut impl ProfilerScope, n: u32) -> u32 {
+fn fib(parent: &mut Span<'_>, n: u32) -> u32 {
     let mut s = parent.span(frame!("fib"));
     spin(Duration::from_millis(20));
     if n < 2 {

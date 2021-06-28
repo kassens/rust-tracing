@@ -154,3 +154,11 @@ pub enum Event {
         frame: FrameIndex,
     },
 }
+
+impl Event {
+    pub fn frame(&self) -> FrameIndex {
+        match self {
+            Event::OpenFrame { frame, .. } | Event::CloseFrame { frame, .. } => *frame,
+        }
+    }
+}
